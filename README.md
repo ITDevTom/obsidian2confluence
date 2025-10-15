@@ -5,17 +5,17 @@ obsidian2confluence performs a one-way, scheduled sync from an Obsidian vault to
 ## Architecture
 
 ```
-┌────────────┐      ┌──────────────┐      ┌───────────────┐      ┌────────────────┐
-│Obsidian    │      │Scanner       │      │Sync Engine    │      │Confluence Cloud│
+┌──────────────┐    ┌──────────────┐      ┌───────────────┐      ┌────────────────┐
+│Obsidian      │    │Scanner       │      │Sync Engine    │      │Confluence Cloud│
 │Vault (/vault)├───►│(scan.py +    │──┬──►│(sync.py)      │──┬──►│REST APIs       │
-└────────────┘      │frontmatter)  │  │   └───────────────┘  │   └────────────────┘
-                    └──────────────┘  │                     │
-                                      │                     │
-                                      ▼                     ▼
-                               ┌──────────────┐      ┌───────────────┐
-                               │SQLite State  │◄────►│HTTP Client    │
-                               │(.state/obs2cf)│     │(client.py)    │
-                               └──────────────┘      └───────────────┘
+└──────────────┘    │frontmatter)  │  │   └───────────────┘  │   └────────────────┘
+                    └──────────────┘  │                      │
+                                      │                      │
+                                      ▼                      ▼
+                               ┌───────────────┐      ┌───────────────┐
+                               │SQLite State   │◄────►│HTTP Client    │
+                               │(.state/obs2cf)│      │(client.py)    │
+                               └───────────────┘      └───────────────┘
 ```
 
 ## Limitations
