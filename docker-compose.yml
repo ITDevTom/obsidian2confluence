@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  obsidian2confluence:
+    build: .
+    image: obsidian2confluence:latest
+    env_file:
+      - .env
+    volumes:
+      - ${OBSIDIAN_VAULT_HOST_PATH:-./sample_vault}:/vault:ro
+      - ./.state:/app/.state
+      - ./reports:/app/reports
+      - ./conflicts:/app/conflicts
+    restart: unless-stopped

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+.venv/
+.env
+.state/
+reports/plan_*.md
+conflicts/*.md
+coverage.xml
+htmlcov/
+
