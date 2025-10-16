@@ -1,1 +1,91 @@
-"\"\"\"\nShared pydantic models and enumerations used across the application.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom datetime import datetime\nfrom enum import Enum\nfrom pathlib import Path\nfrom typing import List, Optional\n\nfrom pydantic import BaseModel, Field\n\n\nclass FrontmatterMetadata(BaseModel):\n    \"\"\"Represents parsed YAML frontmatter from an Obsidian note.\"\"\"\n\n    title: Optional[str] = None\n    labels: List[str] = Field(default_factory=list)\n    parent: Optional[str] = None\n    exclude: bool = False\n    page_id: Optional[str] = None\n\n\nclass VaultNote(BaseModel):\n    \"\"\"A fully parsed note in the Obsidian vault.\"\"\"\n\n    path: Path\n    relative_path: str\n    title: str\n    frontmatter: FrontmatterMetadata\n    content: str\n    sha256: str\n\n\nclass RemotePage(BaseModel):\n    \"\"\"Remote Confluence page metadata.\"\"\"\n\n    page_id: str\n    title: str\n    parent_page_id: Optional[str]\n    version: int\n    last_updated: Optional[datetime]\n\n\nclass SyncAction(str, Enum):\n    \"\"\"Possible outcomes for a note sync operation.\"\"\"\n\n    CREATE = \"create\"\n    UPDATE = \"update\"\n    SKIP = \"skip\"\n    CONFLICT = \"conflict\"\n\n\nclass SyncPlanEntry(BaseModel):\n    \"\"\"Action plan describing how a note should be processed.\"\"\"\n\n    note: VaultNote\n    action: SyncAction\n    target_page_id: Optional[str] = None\n    parent_page_id: Optional[str] = None\n    reason: Optional[str] = None\n    labels: List[str] = Field(default_factory=list)\n\n\nclass ConflictRecord(BaseModel):\n    \"\"\"Represents a detected sync conflict for reporting.\"\"\"\n\n    file_path: Path\n    page_id: str\n    reason: str\n    detected_at: datetime\n\n\nclass SyncSummary(BaseModel):\n    \"\"\"Aggregated statistics for a sync execution.\"\"\"\n\n    created: int = 0\n    updated: int = 0\n    skipped: int = 0\n    conflicts: int = 0\n\n    def register(self, action: SyncAction) -> None:\n        if action == SyncAction.CREATE:\n            self.created += 1\n        elif action == SyncAction.UPDATE:\n            self.updated += 1\n        elif action == SyncAction.SKIP:\n            self.skipped += 1\n        elif action == SyncAction.CONFLICT:\n            self.conflicts += 1\n\n*** End Patch***
+"""
+Shared pydantic models and enumerations used across the application.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
+
+class FrontmatterMetadata(BaseModel):
+    """Represents parsed YAML frontmatter from an Obsidian note."""
+
+    title: Optional[str] = None
+    labels: List[str] = Field(default_factory=list)
+    parent: Optional[str] = None
+    exclude: bool = False
+    page_id: Optional[str] = None
+
+
+class VaultNote(BaseModel):
+    """A fully parsed note in the Obsidian vault."""
+
+    path: Path
+    relative_path: str
+    title: str
+    frontmatter: FrontmatterMetadata
+    content: str
+    sha256: str
+
+
+class RemotePage(BaseModel):
+    """Remote Confluence page metadata."""
+
+    page_id: str
+    title: str
+    parent_page_id: Optional[str]
+    version: int
+    last_updated: Optional[datetime]
+
+
+class SyncAction(str, Enum):
+    """Possible outcomes for a note sync operation."""
+
+    CREATE = "create"
+    UPDATE = "update"
+    SKIP = "skip"
+    CONFLICT = "conflict"
+
+
+class SyncPlanEntry(BaseModel):
+    """Action plan describing how a note should be processed."""
+
+    note: VaultNote
+    action: SyncAction
+    target_page_id: Optional[str] = None
+    parent_page_id: Optional[str] = None
+    reason: Optional[str] = None
+    labels: List[str] = Field(default_factory=list)
+
+
+class ConflictRecord(BaseModel):
+    """Represents a detected sync conflict for reporting."""
+
+    file_path: Path
+    page_id: str
+    reason: str
+    detected_at: datetime
+
+
+class SyncSummary(BaseModel):
+    """Aggregated statistics for a sync execution."""
+
+    created: int = 0
+    updated: int = 0
+    skipped: int = 0
+    conflicts: int = 0
+
+    def register(self, action: SyncAction) -> None:
+        if action == SyncAction.CREATE:
+            self.created += 1
+        elif action == SyncAction.UPDATE:
+            self.updated += 1
+        elif action == SyncAction.SKIP:
+            self.skipped += 1
+        elif action == SyncAction.CONFLICT:
+            self.conflicts += 1
